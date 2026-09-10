@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Неправильные глаголы — Visual & Audio</title>
+  <style>
+    :root{--ink:#17223b;--muted:#66728c;--blue:#315fdf;--line:#dfe6f4;--page:#f4f7fc}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Arial,sans-serif;color:var(--ink);background:var(--page)}
+    .wrap{width:min(1280px,calc(100% - 32px));margin:auto} header{padding:38px 0 24px}
+    .hero{padding:30px;border-radius:26px;color:#fff;background:linear-gradient(130deg,#264dca,#7051d9);box-shadow:0 12px 28px rgba(31,57,111,.15)}
+    .eyebrow{font-size:12px;letter-spacing:.13em;font-weight:800;opacity:.8}.hero h1{margin:9px 0 10px;font-size:clamp(30px,5vw,55px);letter-spacing:-.04em}.hero p{max-width:760px;margin:0;line-height:1.55}
+    .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:24px 0;padding:16px;border:1px solid var(--line);background:#fff;border-radius:18px}
+    .search{position:relative;flex:1 1 300px}.search span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#77829a}input{width:100%;padding:13px 14px 13px 40px;border:1px solid #cdd8ee;border-radius:12px;font:inherit;outline:none}input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(49,95,223,.12)}
+    button{border:0;border-radius:11px;padding:11px 14px;cursor:pointer;background:#eaf0fd;color:#173b9e;font:inherit;font-weight:750}.listen-all{background:var(--blue);color:#fff}.counter{margin-left:auto;color:var(--muted);font-size:14px;font-weight:700}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:17px;padding-bottom:45px}.card{display:grid;grid-template-columns:84px minmax(0,1fr);gap:15px;align-items:center;padding:16px;min-height:180px;background:#fff;border:1px solid var(--line);border-radius:19px;box-shadow:0 8px 18px rgba(25,50,90,.06)}
+    .picture{width:84px;height:84px;display:grid;place-items:center;border-radius:18px;font-size:50px;background:var(--tint);border:1px solid var(--soft)}.verb{margin:0 0 5px;font-size:21px}.translation{font-size:14px;font-weight:650;color:var(--muted)}
+    .forms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:11px}.form{min-width:0;overflow:visible;text-align:center;border:1px solid var(--line);border-radius:10px;background:#fbfcff}.form small{display:block;padding:5px 3px 2px;color:#78849c;font-size:10px;font-weight:800}.ipa{min-height:16px;padding:0 3px 3px;color:#77829a;font-size:10px;line-height:1}.speak{width:100%;min-height:40px;padding:6px 4px 7px;border-radius:0 0 9px 9px;background:transparent;color:var(--blue);font-size:clamp(11px,1.6vw,13px);line-height:1.1;white-space:normal;overflow-wrap:anywhere}.speak:hover,.speak.playing{background:#e4ebff}
+    .empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--muted);background:#fff;border:1px dashed #bbc7de;border-radius:16px}footer{padding-bottom:28px;text-align:center;color:var(--muted);font-size:14px}
+    @media(max-width:700px){header{padding-top:20px}.hero{padding:24px}.counter{width:100%;margin-left:0}.grid{grid-template-columns:1fr}.card{grid-template-columns:74px minmax(0,1fr)}.picture{width:74px;height:74px;font-size:43px}}
+    @media(max-width:385px){.wrap{width:calc(100% - 18px)}.card{grid-template-columns:1fr}.forms{grid-template-columns:1fr}.form{display:grid;grid-template-columns:48px 1fr;align-items:center;text-align:left}.form small{text-align:center}.ipa{display:none}.speak{text-align:left;border-radius:0 9px 9px 0}}
+  </style>
+</head>
+<body>
+  <header class="wrap"><section class="hero"><div class="eyebrow">ENGLISH • VISUAL • AUDIO</div><h1>Неправильные глаголы<br>без зубрёжки</h1><p>Изучайте самые нужные формы через визуальные образы и слушайте произношение одним нажатием. Нажмите на V1, V2 или V3, затем повторите форму вслух.</p></section></header>
+  <main class="wrap">
+    <section class="controls"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Поиск: go, went, gone, идти…"></label><button class="listen-all" id="listenAll" type="button">▶ Прослушать карточку</button><button id="stop" type="button">■ Остановить</button><span id="counter" class="counter"></span></section>
+    <section id="grid" class="grid" aria-live="polite"></section>
+  </main>
+  <footer class="wrap">Повторяйте вслух: <i>go — went — gone</i>.</footer>
+  <script>
+    const verbs = [
+      {v1:'be',v2:'was / were',v3:'been',ru:'быть',icon:'🧍',c:'#e8f0ff',b:'#cbdcff'},
+      {v1:'become',v2:'became',v3:'become',ru:'становиться',icon:'🐛➡️🦋',c:'#f4eaff',b:'#e4cdfd'},
+      {v1:'begin',v2:'began',v3:'begun',ru:'начинать(ся)',icon:'🏁',c:'#e5f8f1',b:'#c4eadc'},
+      {v1:'break',v2:'broke',v3:'broken',ru:'ломать, разбивать',icon:'💔',c:'#fff0f2',b:'#ffd5dc'},
+      {v1:'bring',v2:'brought',v3:'brought',ru:'приносить, привозить',icon:'📦',c:'#fff5e3',b:'#f7deac'},
+      {v1:'build',v2:'built',v3:'built',ru:'строить',icon:'🏗️',c:'#e8f4ff',b:'#c8e0f4'},
+      {v1:'buy',v2:'bought',v3:'bought',ru:'покупать',icon:'🛍️',c:'#fceafa',b:'#f2ccef'},
+      {v1:'catch',v2:'caught',v3:'caught',ru:'ловить; успевать',icon:'🤲⚽',c:'#edf7e5',b:'#d1e9be'},
+      {v1:'choose',v2:'chose',v3:'chosen',ru:'выбирать',icon:'🎨',c:'#fff4d9',b:'#f3dda4'},
+      {v1:'come',v2:'came',v3:'come',ru:'приходить, приезжать',icon:'🚶➡️',c:'#e7f4ff',b:'#c7e0f7'},
+      {v1:'cut',v2:'cut',v3:'cut',ru:'резать',icon:'✂️',c:'#fff0ed',b:'#ffd5ce'},
+      {v1:'do',v2:'did',v3:'done',ru:'делать',icon:'✅',c:'#e7f8ee',b:'#c6ead8'},
+      {v1:'draw',v2:'drew',v3:'drawn',ru:'рисовать',icon:'✏️',c:'#f1ecff',b:'#dcd1fa'},
+      {v1:'drink',v2:'drank',v3:'drunk',ru:'пить',icon:'🥤',c:'#e7f8ff',b:'#c7eaf7'},
+      {v1:'drive',v2:'drove',v3:'driven',ru:'водить',icon:'🚗',c:'#edf0ff',b:'#d5dcfb'},
+      {v1:'eat',v2:'ate',v3:'eaten',ru:'есть',icon:'🍎',c:'#fff0ec',b:'#ffd5ca'},
+      {v1:'fall',v2:'fell',v3:'fallen',ru:'падать',icon:'🍂',c:'#fff6df',b:'#f3e1ae'},
+      {v1:'feel',v2:'felt',v3:'felt',ru:'чувствовать',icon:'😊',c:'#fff1e6',b:'#f8d4b7'},
+      {v1:'find',v2:'found',v3:'found',ru:'находить',icon:'🔎',c:'#e9f5ff',b:'#cce2f8'},
+      {v1:'fly',v2:'flew',v3:'flown',ru:'летать',icon:'✈️',c:'#e9f4ff',b:'#c9e1f8'},
+      {v1:'forget',v2:'forgot',v3:'forgotten',ru:'забывать',icon:'🤔',c:'#f3edff',b:'#ddd1fa'},
+      {v1:'get',v2:'got',v3:'got',ru:'получать; добираться',icon:'🎁',c:'#ebfaef',b:'#c9ead2'},
+      {v1:'give',v2:'gave',v3:'given',ru:'давать',icon:'🎁🤲',c:'#fff0f6',b:'#f8d0e1'},
+      {v1:'go',v2:'went',v3:'gone',ru:'идти, ехать',icon:'🚶',c:'#e9f2ff',b:'#cbdcfb'},
+      {v1:'grow',v2:'grew',v3:'grown',ru:'расти; выращивать',icon:'🌱',c:'#ebf8e8',b:'#cce9c5'},
+      {v1:'have',v2:'had',v3:'had',ru:'иметь',icon:'🙌',c:'#fff1e5',b:'#f9d6b7'},
+      {v1:'hear',v2:'heard',v3:'heard',ru:'слышать',icon:'👂',c:'#eef3ff',b:'#d5dffd'},
+      {v1:'keep',v2:'kept',v3:'kept',ru:'хранить; сохранять',icon:'🔐',c:'#e9f9f5',b:'#c9ebe0'},
+      {v1:'know',v2:'knew',v3:'known',ru:'знать',icon:'💡',c:'#fff8dd',b:'#f3e3a7'},
+      {v1:'leave',v2:'left',v3:'left',ru:'уходить; оставлять',icon:'🚪',c:'#edf3ff',b:'#cfddf8'},
+      {v1:'lose',v2:'lost',v3:'lost',ru:'терять; проигрывать',icon:'🔑❓',c:'#fff0f0',b:'#f8d2d2'},
+      {v1:'make',v2:'made',v3:'made',ru:'делать; создавать',icon:'🛠️',c:'#eaf7ff',b:'#cde4f5'},
+      {v1:'meet',v2:'met',v3:'met',ru:'встречать(ся)',icon:'🤝',c:'#f1ecff',b:'#ddd0fa'},
+      {v1:'pay',v2:'paid',v3:'paid',ru:'платить',icon:'💳',c:'#ecf8ed',b:'#cde8cf'},
+      {v1:'put',v2:'put',v3:'put',ru:'класть, помещать',icon:'📥',c:'#edf4ff',b:'#cddff8'},
+      {v1:'read',v2:'read',v3:'read',ru:'читать',icon:'📖',c:'#fff5e8',b:'#f6ddb5',audio:['read','red','red'],ipa:['/riːd/','/red/','/red/']},
+      {v1:'run',v2:'ran',v3:'run',ru:'бегать',icon:'🏃',c:'#eaf8f2',b:'#cdebdc'},
+      {v1:'say',v2:'said',v3:'said',ru:'говорить, сказать',icon:'💬',c:'#eef0ff',b:'#d7dcfb'},
+      {v1:'see',v2:'saw',v3:'seen',ru:'видеть',icon:'👁️',c:'#edf8ff',b:'#cde8f7'},
+      {v1:'sell',v2:'sold',v3:'sold',ru:'продавать',icon:'🏪',c:'#fff0e9',b:'#f8d3c2'},
+      {v1:'send',v2:'sent',v3:'sent',ru:'отправлять',icon:'✉️',c:'#f0edff',b:'#d9d0fa'},
+      {v1:'show',v2:'showed',v3:'shown',ru:'показывать',icon:'👉',c:'#fff7e5',b:'#f3e2b9'},
+      {v1:'sit',v2:'sat',v3:'sat',ru:'сидеть',icon:'🪑',c:'#eaf4ff',b:'#cce0f5'},
+      {v1:'sleep',v2:'slept',v3:'slept',ru:'спать',icon:'😴',c:'#eff0ff',b:'#d9dcfa'},
+      {v1:'speak',v2:'spoke',v3:'spoken',ru:'говорить',icon:'🗣️',c:'#fff0f6',b:'#f7d0e1'},
+      {v1:'spend',v2:'spent',v3:'spent',ru:'тратить; проводить',icon:'⏳',c:'#fff5e3',b:'#f5dcaf'},
+      {v1:'stand',v2:'stood',v3:'stood',ru:'стоять',icon:'🧍‍♀️',c:'#eaf8f0',b:'#cce9d8'},
+      {v1:'take',v2:'took',v3:'taken',ru:'брать',icon:'🤲',c:'#e9f2ff',b:'#cbdcf8'},
+      {v1:'teach',v2:'taught',v3:'taught',ru:'учить, преподавать',icon:'👩‍🏫',c:'#f3edff',b:'#ddd0fa'},
+      {v1:'tell',v2:'told',v3:'told',ru:'рассказывать; говорить',icon:'🗨️',c:'#edf8ff',b:'#cce6f6'},
+      {v1:'think',v2:'thought',v3:'thought',ru:'думать',icon:'💭',c:'#fff1f5',b:'#f6d0df'},
+      {v1:'understand',v2:'understood',v3:'understood',ru:'понимать',icon:'💡✅',c:'#fff8df',b:'#f1e2ad'},
+      {v1:'wear',v2:'wore',v3:'worn',ru:'носить (одежду)',icon:'👕',c:'#edf3ff',b:'#cfdcf8'},
+      {v1:'win',v2:'won',v3:'won',ru:'побеждать',icon:'🏆',c:'#fff7de',b:'#f2e0a9'},
+      {v1:'write',v2:'wrote',v3:'written',ru:'писать',icon:'📝',c:'#ecf7ff',b:'#cce4f6'}
+    ];
+    const grid=document.getElementById('grid'),search=document.getElementById('search'),counter=document.getElementById('counter');
+    const escapeHtml=s=>String(s).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));
+    function card(v){const visible=[v.v1,v.v2,v.v3],audio=v.audio||visible,ipa=v.ipa||['','',''];const cells=visible.map((word,i)=>'<div class="form"><small>V'+(i+1)+'</small><div class="ipa">'+(ipa[i]||'&nbsp;')+'</div><button class="speak" type="button" data-say="'+escapeHtml(audio[i])+'">'+escapeHtml(word)+' 🔊</button></div>').join('');return '<article class="card" style="--tint:'+v.c+';--soft:'+v.b+'"><div class="picture" role="img" aria-label="'+escapeHtml(v.ru)+'">'+v.icon+'</div><div><h2 class="verb">'+escapeHtml(v.v1)+' <span class="translation">— '+escapeHtml(v.ru)+'</span></h2><div class="forms">'+cells+'</div></div></article>'}
+    function render(list){counter.textContent='Показано: '+list.length+' из '+verbs.length;grid.innerHTML=list.length?list.map(card).join(''):'<div class="empty">Ничего не найдено. Попробуйте другую форму или перевод.</div>'}
+    function speak(text,button){if(!('speechSynthesis'in window))return;window.speechSynthesis.cancel();document.querySelectorAll('.playing').forEach(x=>x.classList.remove('playing'));const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';u.rate=.75;if(button)button.classList.add('playing');u.onend=u.onerror=()=>button&&button.classList.remove('playing');window.speechSynthesis.speak(u)}
+    grid.addEventListener('click',e=>{const b=e.target.closest('.speak');if(b)speak(b.dataset.say,b)});search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();render(verbs.filter(v=>(v.v1+' '+v.v2+' '+v.v3+' '+v.ru).toLowerCase().includes(q)))});document.getElementById('stop').addEventListener('click',()=>window.speechSynthesis&&window.speechSynthesis.cancel());document.getElementById('listenAll').addEventListener('click',()=>{const first=grid.querySelector('.card');if(!first)return;const words=[...first.querySelectorAll('.speak')].map(b=>b.dataset.say);let i=0;window.speechSynthesis.cancel();const next=()=>{if(i>=words.length)return;const u=new SpeechSynthesisUtterance(words[i++]);u.lang='en-GB';u.rate=.7;u.onend=()=>setTimeout(next,250);u.onerror=next;window.speechSynthesis.speak(u)};next()});render(verbs);
+  </script>
+</body>
+</html>
